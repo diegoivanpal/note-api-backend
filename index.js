@@ -20,9 +20,11 @@ app.get('/', (request, response) => {
   response.send('<h1>Hello World</h1>')
 })
 
-app.get('/api/notes', (request, response) => {
+app.get('/api/notes', (request, response, next) => {
   Note.find({}).then(notes => {
     response.json(notes)
+  }).catch(err => {
+    next(err)
   })
   
 })
@@ -57,6 +59,8 @@ app.put('/api/notes/:id', (request, response, next ) => {
   Note.findByIdAndUpdate(id, newNoteInfo, {new: true})
     .then(result => {
       response.json(result)
+    }).catch(err => {
+      next(err)
     })
 
 
@@ -73,7 +77,7 @@ app.delete('/api/notes/:id', (request, response, next) => {
 })
 
 
-app.post('/api/notes', (request, response) => {
+app.post('/api/notes', (request, response, next) => {
   const note = request.body
 
   if (!note.content) {
@@ -90,7 +94,9 @@ const newNote = new Note ({
 
  newNote.save().then(savedNote => {
    response.json(savedNote)
- })
+ }).catch(err => {
+  next(err)
+})
 
   })
 
