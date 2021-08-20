@@ -7,12 +7,16 @@ const app = express()
 const cors = require('cors')
 const Note = require('./models/Note.js')
 const User = require('./models/User.js')
+
+
 const { response, request } = require('express')
 const notFound = require('./middleware/notFound.js')
 const handleErrors = require('./middleware/handleErrors.js')
+const userExtractor = require('./middleware/userExtractor')
 
 const loginRouter = require('./controllers/login.js')
 const usersRouter = require('./controllers/users.js')
+
 
 
 app.use(cors())
@@ -57,7 +61,7 @@ app.get('/api/notes/:id', (request, response, next) => {
 })
 
 
-app.put('/api/notes/:id', (request, response, next ) => {
+app.put('/api/notes/:id', userExtractor, (request, response, next ) => {
   const { id } = request.response
   const note = request.body
 
@@ -76,7 +80,7 @@ app.put('/api/notes/:id', (request, response, next ) => {
 
 })
 
-app.delete('/api/notes/:id', async (request, response, next) => {
+app.delete('/api/notes/:id', userExtractor, async (request, response, next) => {
   const { id } =  request.params
   try{
     await Note.findByIdAndDelete(id)
@@ -95,13 +99,14 @@ app.delete('/api/notes/:id', async (request, response, next) => {
 })
 
 
-app.post('/api/notes', async (request, response, next) => {
+app.post('/api/notes', userExtractor, async (request, response, next) => {
   //const note = request.body
   const  {
     content, 
-    important = false,
-    userId
+    important = false
   } = request.body
+
+  const { userId } = request 
 
   const user = await User.findById(userId)
  
